@@ -297,15 +297,10 @@ Kicker.DashboardWindow {
             Item {
                 id: favoritesColumn
 
-                anchors {
-                    top: root.top
-                    bottom: root.bottom
-                }
-
                 width: (columns * root.cellSize) + Kirigami.Units.gridUnit
                 height: parent.height
 
-                property int columns: 3
+                property int columns: 1
 
                 ItemGridView {
                     id: systemFavoritesGrid
@@ -366,10 +361,11 @@ Kicker.DashboardWindow {
                 width: (columns * root.cellSize) + Kirigami.Units.gridUnit
                 height: Math.floor(parent.height / root.cellSize) * root.cellSize + mainGridContainer.headerHeight
 
+
                 Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
                     Kirigami.Theme.inherit: false
 
-                property int columns: root.columns - favoritesColumn.columns - filterListColumn.columns
+                property int columns: root.columns - favoritesColumn.columns
                 property Item visibleGrid: mainGrid
 
                 function tryActivate(row, col) {
@@ -582,222 +578,23 @@ Kicker.DashboardWindow {
             Item {
                 id: filterListColumn
 
-                anchors {
-                    top: parent.top
-                    topMargin: mainColumnLabelUnderline.y + mainColumnLabelUnderline.height + Kirigami.Units.gridUnit
-                    bottom: parent.bottom
-                }
-
-                width: columns * root.cellSize
-
-                property int columns: 3
-
                 PlasmaComponents.ScrollView {
                     id: filterListScrollArea
 
-                    x: root.visible ? 0 : Kirigami.Units.gridUnit
-
-                    Behavior on x { SmoothedAnimation { duration: Kirigami.Units.longDuration; velocity: 0.01 } }
-
-                    width: parent.width
                     height: mainGrid.height
 
                     enabled: !root.searching
-
-                    property alias currentIndex: filterList.currentIndex
-
-                    opacity: root.visible ? (root.searching ? 0.30 : 1.0) : 0.3
-
-                    Behavior on opacity { SmoothedAnimation { duration: Kirigami.Units.longDuration; velocity: 0.01 } }
-
-                    PlasmaComponents.ScrollBar.vertical.policy: (opacity === 1.0) ? PlasmaComponents.ScrollBar.AsNeeded : PlasmaComponents.ScrollBar.AlwaysOff
-
-                    onEnabledChanged: {
-                        if (!enabled) {
-                            filterList.currentIndex = -1;
-                        }
-                    }
-
-                    onCurrentIndexChanged: {
-                        focus = (currentIndex !== -1);
-                    }
 
                     ListView {
                         id: filterList
 
                         focus: true
 
-                        property bool allApps: false
-                        property int eligibleWidth: width
-                        property int hItemMargins: Math.max(highlightItemSvg.margins.left + highlightItemSvg.margins.right,
-                            listItemSvg.margins.left + listItemSvg.margins.right)
+                        property bool allApps: true
 
                         model: rootModel
 
-                        boundsBehavior: Flickable.StopAtBounds
-                        snapMode: ListView.SnapToItem
-                        spacing: 0
-                        keyNavigationWraps: true
-
-                        delegate: MouseArea {
-                            id: item
-
-                            signal actionTriggered(string actionId, variant actionArgument)
-                            signal aboutToShowActionMenu(variant actionMenu)
-
-                            property var m: model
-                            property int textWidth: label.contentWidth
-                            property int mouseCol
-                            property bool hasActionList: ((model.favoriteId !== null)
-                                || (("hasActionList" in model) && (model.hasActionList === true)))
-                            property Item menu: actionMenu
-
-                            width: ListView.view.width
-                            height: Math.ceil((label.paintedHeight
-                                + Math.max(highlightItemSvg.margins.top + highlightItemSvg.margins.bottom,
-                                listItemSvg.margins.top + listItemSvg.margins.bottom)) / 2) * 2
-
-                            Accessible.role: Accessible.MenuItem
-                            Accessible.name: model.display
-
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-                            hoverEnabled: true
-
-                            onContainsMouseChanged: {
-                                if (!containsMouse) {
-                                    updateCurrentItemTimer.stop();
-                                }
-                            }
-
-                            onPositionChanged: mouse => { // Lazy menu implementation.
-                                mouseCol = mouse.x;
-
-                                if (justOpenedTimer.running || ListView.view.currentIndex === 0 || index === ListView.view.currentIndex) {
-                                    updateCurrentItem();
-                                } else if ((index === ListView.view.currentIndex - 1) && mouse.y < (height - 6)
-                                    || (index === ListView.view.currentIndex + 1) && mouse.y > 5) {
-
-                                    if (mouse.x > ListView.view.eligibleWidth - 5) {
-                                        updateCurrentItem();
-                                    }
-                                } else if (mouse.x > ListView.view.eligibleWidth) {
-                                    updateCurrentItem();
-                                }
-
-                                updateCurrentItemTimer.restart();
-                            }
-
-                            onPressed: mouse => {
-                                if (mouse.buttons & Qt.RightButton) {
-                                    if (hasActionList) {
-                                        openActionMenu(item, mouse.x, mouse.y);
-                                    }
-                                }
-                            }
-
-                            onClicked: mouse => {
-                                if (mouse.button === Qt.LeftButton) {
-                                    updateCurrentItem();
-                                }
-                            }
-
-                            onAboutToShowActionMenu: {
-                                var actionList = hasActionList ? model.actionList : [];
-                                Tools.fillActionMenu(i18n, actionMenu, actionList, ListView.view.model.favoritesModel, model.favoriteId);
-                            }
-
-                            onActionTriggered: {
-                                if (Tools.triggerAction(ListView.view.model, model.index, actionId, actionArgument) === true) {
-                                    kicker.expanded = false;
-                                }
-                            }
-
-                            function openActionMenu(visualParent, x, y) {
-                                aboutToShowActionMenu(actionMenu);
-                                actionMenu.visualParent = visualParent;
-                                actionMenu.open(x, y);
-                            }
-
-                            function updateCurrentItem() {
-                                ListView.view.currentIndex = index;
-                                ListView.view.eligibleWidth = Math.min(width, mouseCol);
-                            }
-
-                            ActionMenu {
-                                id: actionMenu
-
-                                onActionClicked: {
-                                    actionTriggered(actionId, actionArgument);
-                                }
-                            }
-
-                            Timer {
-                                id: updateCurrentItemTimer
-
-                                interval: 50
-                                repeat: false
-
-                                onTriggered: parent.updateCurrentItem()
-                            }
-
-                            Kirigami.Heading {
-                                id: label
-
-                                anchors {
-                                    fill: parent
-                                    topMargin: highlightItemSvg.margins.top
-                                    bottomMargin: highlightItemSvg.margins.bottom
-                                    leftMargin: highlightItemSvg.margins.left
-                                    rightMargin: highlightItemSvg.margins.right
-                                }
-
-                                elide: Text.ElideRight
-                                wrapMode: Text.NoWrap
-                                opacity: 1.0
-
-                                color: "white"
-
-                                level: 1
-
-                                text: model.display
-                            }
-                        }
-
-                        highlight: PlasmaExtras.Highlight {
-                            x: filterList.currentItem ? filterList.currentItem.x : 0
-                            y: filterList.currentItem ? filterList.currentItem.y : 0
-                            height: filterList.currentItem ? filterList.currentItem.height : 0
-                            width: (highlightItemSvg.margins.left
-                                + (filterList.currentItem ? filterList.currentItem.textWidth : 0)
-                                + highlightItemSvg.margins.right
-                                + Kirigami.Units.smallSpacing)
-
-                            visible: filterList.currentItem
-                            active: filterListScrollArea.focus
-                            pressed: filterList.currentItem && filterList.currentItem.pressed
-                        }
-
-                        highlightFollowsCurrentItem: false
-                        highlightMoveDuration: 0
-                        highlightResizeDuration: 0
-
                         onCurrentIndexChanged: applyFilter()
-
-                        onCountChanged: {
-                            var width = 0;
-
-                            for (var i = 0; i < rootModel.count; ++i) {
-                                headingMetrics.text = rootModel.labelForRow(i);
-
-                                if (headingMetrics.width > width) {
-                                    width = headingMetrics.width;
-                                }
-                            }
-
-                            filterListColumn.columns = Math.ceil(width / root.cellSize);
-                            filterListScrollArea.width = width + hItemMargins + (Kirigami.Units.gridUnit * 2);
-                        }
 
                         function applyFilter() {
                             if (!root.searching && currentIndex >= 0) {
@@ -819,21 +616,6 @@ Kicker.DashboardWindow {
                             } else {
                                 funnelModel.sourceModel = null;
                                 allApps = false;
-                            }
-                        }
-
-                        Keys.onPressed: event => {
-                            if (event.key === Qt.Key_Left) {
-                                event.accepted = true;
-
-                                const currentRow = Math.max(0, Math.ceil(currentItem.y / mainGrid.cellHeight) - 1);
-                                mainColumn.tryActivate(currentRow, mainColumn.columns - 1);
-                            } else if (event.key === Qt.Key_Tab) {
-                                event.accepted = true;
-                                systemFavoritesGrid.tryActivate(0, 0);
-                            } else if (event.key === Qt.Key_Backtab) {
-                                event.accepted = true;
-                                mainColumn.tryActivate(0, 0);
                             }
                         }
                     }
