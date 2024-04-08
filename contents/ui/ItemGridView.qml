@@ -191,8 +191,6 @@ FocusScope {
 
                 currentIndex: -1
 
-                verticalLayoutDirection: GridView.BottomToTop
-
                 move: Transition {
                     enabled: itemGrid.dropEnabled
 

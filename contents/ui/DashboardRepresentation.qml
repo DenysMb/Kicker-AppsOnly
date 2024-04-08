@@ -295,65 +295,6 @@ Kicker.DashboardWindow {
             spacing: Kirigami.Units.gridUnit * 2
 
             Item {
-                id: favoritesColumn
-
-                width: (columns * root.cellSize) + Kirigami.Units.gridUnit
-                height: parent.height
-
-                property int columns: 1
-
-                ItemGridView {
-                    id: systemFavoritesGrid
-
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
-                    Kirigami.Theme.inherit: false
-
-                    anchors {
-                        top: parent.top
-                    }
-
-                    property int rows: Math.ceil(count / Math.floor(width / root.cellSize))
-
-                    width: parent.width
-                    height: parent.height
-
-                    cellWidth: root.cellSize
-                    cellHeight: root.cellSize
-                    iconSize: root.iconSize
-
-                    model: systemFavorites
-
-                    dropEnabled: true
-
-                    onCurrentIndexChanged: {
-                        preloadAllAppsTimer.defer();
-                    }
-
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Tab) {
-                            event.accepted = true;
-
-                            if (root.searching && !runnerModel.count) {
-                                cancelSearchButton.focus = true;
-                            } else {
-                                mainColumn.tryActivate(0, 0);
-                            }
-                        } else if (event.key === Qt.Key_Backtab) {
-                            event.accepted = true;
-
-                            if (filterList.enabled) {
-                                filterList.forceActiveFocus();
-                            } else if (root.searching && !runnerModel.count) {
-                                cancelSearchButton.focus = true;
-                            } else {
-                                mainColumn.tryActivate(0, 0);
-                            }
-                        }
-                    }
-                }
-            }
-
-            Item {
                 id: mainColumn
 
                 anchors.top: parent.top
@@ -365,7 +306,7 @@ Kicker.DashboardWindow {
                 Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
                     Kirigami.Theme.inherit: false
 
-                property int columns: root.columns - favoritesColumn.columns
+                property int columns: root.columns
                 property Item visibleGrid: mainGrid
 
                 function tryActivate(row, col) {
@@ -570,6 +511,65 @@ Kicker.DashboardWindow {
                             cancelSearchButton.focus = true;
                         } else {
                             systemFavoritesGrid.tryActivate(0, 0);
+                        }
+                    }
+                }
+            }
+
+            Item {
+                id: favoritesColumn
+
+                width: (columns * root.cellSize) + Kirigami.Units.gridUnit
+                height: parent.height
+
+                property int columns: 1
+
+                ItemGridView {
+                    id: systemFavoritesGrid
+
+                    Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
+                    Kirigami.Theme.inherit: false
+
+                    anchors {
+                        top: parent.top
+                    }
+
+                    property int rows: Math.ceil(count / Math.floor(width / root.cellSize))
+
+                    width: parent.width
+                    height: parent.height
+
+                    cellWidth: root.cellSize
+                    cellHeight: root.cellSize
+                    iconSize: root.iconSize
+
+                    model: systemFavorites
+
+                    dropEnabled: true
+
+                    onCurrentIndexChanged: {
+                        preloadAllAppsTimer.defer();
+                    }
+
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Tab) {
+                            event.accepted = true;
+
+                            if (root.searching && !runnerModel.count) {
+                                cancelSearchButton.focus = true;
+                            } else {
+                                mainColumn.tryActivate(0, 0);
+                            }
+                        } else if (event.key === Qt.Key_Backtab) {
+                            event.accepted = true;
+
+                            if (filterList.enabled) {
+                                filterList.forceActiveFocus();
+                            } else if (root.searching && !runnerModel.count) {
+                                cancelSearchButton.focus = true;
+                            } else {
+                                mainColumn.tryActivate(0, 0);
+                            }
                         }
                     }
                 }
