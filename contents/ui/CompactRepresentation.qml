@@ -20,7 +20,7 @@ Item {
     readonly property bool useCustomButtonImage: (Plasmoid.configuration.useCustomButtonImage
         && Plasmoid.configuration.customButtonImage.length !== 0)
 
-    readonly property Component dashWindowComponent: kicker.isDash ? Qt.createComponent(Qt.resolvedUrl("./DashboardRepresentation.qml"), root) : null
+    readonly property Component dashWindowComponent: Qt.createComponent(Qt.resolvedUrl("./DashboardRepresentation.qml"), root)
     readonly property Kicker.DashboardWindow dashWindow: dashWindowComponent && dashWindowComponent.status === Component.Ready
         ? dashWindowComponent.createObject(root, { visualParent: root }) : null
 
@@ -89,25 +89,15 @@ Item {
         Accessible.description: toolTipSubText
         Accessible.role: Accessible.Button
 
-        onPressed: {
-            if (!kicker.isDash) {
-                wasExpanded = kicker.expanded
-            }
-        }
-
         onClicked: {
-            if (kicker.isDash) {
-                root.dashWindow.toggle();
-                justOpenedTimer.start();
-            } else {
-                kicker.expanded = !wasExpanded;
-            }
+            root.dashWindow.toggle();
+            justOpenedTimer.start();
         }
     }
 
     Connections {
         target: Plasmoid
-        enabled: kicker.isDash && root.dashWindow !== null
+        enabled: root.dashWindow !== null
 
         function onActivated() {
             root.dashWindow.toggle();

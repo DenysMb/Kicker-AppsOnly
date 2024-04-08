@@ -19,23 +19,13 @@ import org.kde.kcmutils as KCM
 KCM.SimpleKCM {
     id: configGeneral
 
-    property bool isDash: (Plasmoid.pluginName === "org.kde.plasma.kickerdash")
-
     property string cfg_icon: Plasmoid.configuration.icon
     property bool cfg_useCustomButtonImage: Plasmoid.configuration.useCustomButtonImage
     property string cfg_customButtonImage: Plasmoid.configuration.customButtonImage
 
     property alias cfg_appNameFormat: appNameFormat.currentIndex
-    property alias cfg_limitDepth: limitDepth.checked
-    property alias cfg_alphaSort: alphaSort.checked
-    property alias cfg_showIconsRootLevel: showIconsRootLevel.checked
-
-    property alias cfg_recentOrdering: recentOrdering.currentIndex
-    property alias cfg_showRecentApps: showRecentApps.checked
-    property alias cfg_showRecentDocs: showRecentDocs.checked
 
     property alias cfg_useExtraRunners: useExtraRunners.checked
-    property alias cfg_alignResultsToBottom: alignResultsToBottom.checked
 
     Kirigami.FormLayout {
         anchors.left: parent.left
@@ -156,57 +146,8 @@ KCM.SimpleKCM {
             Kirigami.FormData.isSection: true
         }
 
-        CheckBox {
-            id: alphaSort
-
-            Kirigami.FormData.label: i18n("Behavior:")
-
-            text: i18n("Sort applications alphabetically")
-        }
-
-        CheckBox {
-            id: limitDepth
-
-            visible: !isDash
-
-            text: i18n("Flatten sub-menus to a single level")
-        }
-
-        CheckBox {
-            id: showIconsRootLevel
-
-            visible: !configGeneral.isDash
-
-            text: i18n("Show icons on the root level of the menu")
-        }
-
         Item {
             Kirigami.FormData.isSection: true
-        }
-
-        CheckBox {
-            id: showRecentApps
-
-            Kirigami.FormData.label: i18n("Show categories:")
-
-            text: recentOrdering.currentIndex == 0
-                    ? i18n("Recent applications")
-                    : i18n("Often used applications")
-        }
-
-        CheckBox {
-            id: showRecentDocs
-
-            text: recentOrdering.currentIndex == 0
-                    ? i18n("Recent files")
-                    : i18n("Often used files")
-        }
-
-        ComboBox {
-            id: recentOrdering
-
-            Kirigami.FormData.label: i18n("Sort items in categories by:")
-            model: [i18nc("@item:inlistbox Sort items in categories by [Recently used | Often used]", "Recently used"), i18nc("@item:inlistbox Sort items in categories by [Recently used | Ofetn used]", "Often used")]
         }
 
         Item {
@@ -219,14 +160,6 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: i18n("Search:")
 
             text: i18n("Expand search to bookmarks, files and emails")
-        }
-
-        CheckBox {
-            id: alignResultsToBottom
-
-            visible: !configGeneral.isDash
-
-            text: i18n("Align search results to bottom")
         }
     }
 }

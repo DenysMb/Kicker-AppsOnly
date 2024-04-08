@@ -22,16 +22,14 @@ PlasmoidItem {
 
     signal reset
 
-    property bool isDash: Plasmoid.pluginName === "org.kde.plasma.kickerdash"
-
-    switchWidth: isDash || !fullRepresentationItem ? 0 :fullRepresentationItem.Layout.minimumWidth
-    switchHeight: isDash || !fullRepresentationItem ? 0 :fullRepresentationItem.Layout.minimumHeight
+    switchWidth: 0
+    switchHeight: 0
 
     // this is a bit of a hack to prevent Plasma from spawning a dialog on its own when we're Dash
-   preferredRepresentation: isDash ?fullRepresentation : null
+   preferredRepresentation: fullRepresentation
 
-   compactRepresentation: isDash ? null : compactRepresentation
-   fullRepresentation: isDash ? compactRepresentation : menuRepresentation
+   compactRepresentation: null
+   fullRepresentation: compactRepresentation
 
     property Component itemListDialogComponent: Qt.createComponent(Qt.resolvedUrl("./ItemListDialog.qml"))
     property Item dragSource: null
@@ -70,17 +68,17 @@ PlasmoidItem {
         autoPopulate: false
 
         appNameFormat: Plasmoid.configuration.appNameFormat
-        flat: kicker.isDash || Plasmoid.configuration.limitDepth
+        flat: true
         sorted: Plasmoid.configuration.alphaSort
-        showSeparators: !kicker.isDash
+        showSeparators: false
         // TODO: appletInterface property now can be ported to "applet" and have the real Applet* assigned directly
         appletInterface: kicker
 
-        showAllApps: kicker.isDash
+        showAllApps: true
         showAllAppsCategorized: true
-        showTopLevelItems: !kicker.isDash
-        showRecentApps: Plasmoid.configuration.showRecentApps
-        showRecentDocs: Plasmoid.configuration.showRecentDocs
+        showTopLevelItems: false
+        showRecentApps: false
+        showRecentDocs: false
         recentOrdering: Plasmoid.configuration.recentOrdering
 
         onShowRecentAppsChanged: {
@@ -145,9 +143,7 @@ PlasmoidItem {
         runners: {
             const results = ["krunner_services", "krunner_systemsettings"];
 
-            if (kicker.isDash) {
-                results.push("krunner_sessions", "krunner_powerdevil", "calculator", "unitconverter");
-            }
+            results.push("krunner_sessions", "krunner_powerdevil", "calculator", "unitconverter");
 
             if (Plasmoid.configuration.useExtraRunners) {
                 results.push(...Plasmoid.configuration.extraRunners);
@@ -247,7 +243,7 @@ PlasmoidItem {
 
     Component.onCompleted: {
         if (Plasmoid.hasOwnProperty("activationTogglesExpanded")) {
-            Plasmoid.activationTogglesExpanded = !kicker.isDash
+            Plasmoid.activationTogglesExpanded = false
         }
 
         windowSystem.focusIn.connect(enableHideOnWindowDeactivate);
