@@ -71,7 +71,6 @@ Kicker.DashboardWindow {
 
     function reset() {
         searchField.clear();
-        globalFavoritesGrid.currentIndex = -1;
         systemFavoritesGrid.currentIndex = -1;
         filterList.currentIndex = 0;
         funnelModel.sourceModel = rootModel.modelForRow(0);
@@ -274,11 +273,7 @@ Kicker.DashboardWindow {
                 } else if (event.key === Qt.Key_Backtab) {
                     event.accepted = true;
 
-                    if (globalFavoritesGrid.enabled) {
-                        globalFavoritesGrid.tryActivate(0, 0);
-                    } else {
-                        systemFavoritesGrid.tryActivate(0, 0);
-                    }
+                    systemFavoritesGrid.tryActivate(0, 0);
                 }
             }
         }
@@ -295,6 +290,7 @@ Kicker.DashboardWindow {
             }
 
             width: (root.columns * root.cellSize) + (2 * spacing)
+            height: parent.height
 
             spacing: Kirigami.Units.gridUnit * 2
 
@@ -302,133 +298,29 @@ Kicker.DashboardWindow {
                 id: favoritesColumn
 
                 anchors {
-                    top: parent.top
-                    bottom: parent.bottom
+                    top: root.top
+                    bottom: root.bottom
                 }
 
                 width: (columns * root.cellSize) + Kirigami.Units.gridUnit
+                height: parent.height
 
                 property int columns: 3
 
-                Kirigami.Heading {
-                    id: favoritesColumnLabel
+                ItemGridView {
+                    id: systemFavoritesGrid
+
+                    Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
+                    Kirigami.Theme.inherit: false
 
                     anchors {
                         top: parent.top
                     }
 
-                    x: Kirigami.Units.smallSpacing
-                    width: parent.width - x
-
-                    elide: Text.ElideRight
-                    wrapMode: Text.NoWrap
-
-                    color: "white"
-
-                    level: 1
-
-                    text: i18n("Favorites")
-
-                    opacity: enabled ? 1.0 : 0.3
-
-                    Behavior on opacity { SmoothedAnimation { duration: Kirigami.Units.longDuration; velocity: 0.01 } }
-                }
-
-                KSvg.SvgItem {
-                    id: favoritesColumnLabelUnderline
-
-                    anchors {
-                        top: favoritesColumnLabel.bottom
-                    }
-
-                    width: parent.width - Kirigami.Units.gridUnit
-                    height: lineSvg.horLineHeight
-
-                    svg: lineSvg
-                    elementId: "horizontal-line"
-
-                    opacity: enabled ? 1.0 : 0.3
-
-                    Behavior on opacity { SmoothedAnimation { duration: Kirigami.Units.longDuration; velocity: 0.01 } }
-                }
-
-                ItemGridView {
-                    id: globalFavoritesGrid
-
-                    anchors {
-                        top: favoritesColumnLabelUnderline.bottom
-                        topMargin: Kirigami.Units.gridUnit
-                    }
-
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
-                    Kirigami.Theme.inherit: false
-
-                    property int rows: (Math.floor((parent.height - favoritesColumnLabel.height
-                        - favoritesColumnLabelUnderline.height - Kirigami.Units.gridUnit) / root.cellSize)
-                        - systemFavoritesGrid.rows)
-
-                    width: parent.width
-                    height: rows * root.cellSize
-
-                    cellWidth: root.cellSize
-                    cellHeight: root.cellSize
-                    iconSize: root.iconSize
-
-                    model: globalFavorites
-
-                    dropEnabled: true
-
-                    opacity: enabled ? 1.0 : 0.3
-
-                    Behavior on opacity { SmoothedAnimation { duration: Kirigami.Units.longDuration; velocity: 0.01 } }
-
-                    onCurrentIndexChanged: {
-                        preloadAllAppsTimer.defer();
-                    }
-
-                    onKeyNavRight: {
-                        mainColumn.tryActivate(currentRow(), 0);
-                    }
-
-                    onKeyNavDown: {
-                        systemFavoritesGrid.tryActivate(0, currentCol());
-                    }
-
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Tab) {
-                            event.accepted = true;
-
-                            if (root.searching) {
-                                cancelSearchButton.focus = true;
-                            } else {
-                                mainColumn.tryActivate(0, 0);
-                            }
-                        } else if (event.key === Qt.Key_Backtab) {
-                            event.accepted = true;
-                            systemFavoritesGrid.tryActivate(0, 0);
-                        }
-                    }
-
-                    Binding {
-                        target: globalFavorites
-                        property: "iconSize"
-                        value: root.iconSize
-                        restoreMode: Binding.RestoreBinding
-                    }
-                }
-
-                ItemGridView {
-                    id: systemFavoritesGrid
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
-                    Kirigami.Theme.inherit: false
-                    anchors {
-                        top: globalFavoritesGrid.bottom
-                    }
-
                     property int rows: Math.ceil(count / Math.floor(width / root.cellSize))
 
                     width: parent.width
-                    height: rows * root.cellSize
+                    height: parent.height
 
                     cellWidth: root.cellSize
                     cellHeight: root.cellSize
@@ -442,21 +334,11 @@ Kicker.DashboardWindow {
                         preloadAllAppsTimer.defer();
                     }
 
-                    onKeyNavRight: {
-                        mainColumn.tryActivate(globalFavoritesGrid.rows + currentRow(), 0);
-                    }
-
-                    onKeyNavUp: {
-                        globalFavoritesGrid.tryActivate(globalFavoritesGrid.rows - 1, currentCol());
-                    }
-
                     Keys.onPressed: event => {
                         if (event.key === Qt.Key_Tab) {
                             event.accepted = true;
 
-                            if (globalFavoritesGrid.enabled) {
-                                globalFavoritesGrid.tryActivate(0, 0);
-                            } else if (root.searching && !runnerModel.count) {
+                            if (root.searching && !runnerModel.count) {
                                 cancelSearchButton.focus = true;
                             } else {
                                 mainColumn.tryActivate(0, 0);
@@ -584,8 +466,8 @@ Kicker.DashboardWindow {
 
                         onKeyNavLeft: {
                             var row = currentRow();
-                            var target = row + 1 > globalFavoritesGrid.rows ? systemFavoritesGrid : globalFavoritesGrid;
-                            var targetRow = row + 1 > globalFavoritesGrid.rows ? row - globalFavoritesGrid.rows : row;
+                            var target = systemFavoritesGrid;
+                            var targetRow = row;
                             target.tryActivate(targetRow, favoritesColumn.columns - 1);
                         }
 
@@ -626,8 +508,8 @@ Kicker.DashboardWindow {
 
                         row += subGridAt(subGridIndex).currentRow();
 
-                        var target = row + 1 > globalFavoritesGrid.rows ? systemFavoritesGrid : globalFavoritesGrid;
-                        var targetRow = row + 1 > globalFavoritesGrid.rows ? row - globalFavoritesGrid.rows : row;
+                        var target = systemFavoritesGrid;
+                        var targetRow = row;
                         target.tryActivate(targetRow, favoritesColumn.columns - 1);
                     }
 
@@ -670,8 +552,8 @@ Kicker.DashboardWindow {
 
                         row += subGridAt(subGridIndex).currentRow();
 
-                        var target = row + 1 > globalFavoritesGrid.rows ? systemFavoritesGrid : globalFavoritesGrid;
-                        var targetRow = row + 1 > globalFavoritesGrid.rows ? row - globalFavoritesGrid.rows : row;
+                        var target = systemFavoritesGrid;
+                        var targetRow = row;
                         target.tryActivate(targetRow, favoritesColumn.columns - 1);
                     }
                 }
@@ -690,8 +572,6 @@ Kicker.DashboardWindow {
 
                         if (root.searching) {
                             cancelSearchButton.focus = true;
-                        } else if (globalFavoritesGrid.enabled) {
-                            globalFavoritesGrid.tryActivate(0, 0);
                         } else {
                             systemFavoritesGrid.tryActivate(0, 0);
                         }
