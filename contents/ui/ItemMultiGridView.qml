@@ -88,7 +88,8 @@ PlasmaComponents.ScrollView {
 
                 delegate: Item {
                     width: itemColumn.width - Kirigami.Units.gridUnit
-                    height: headerHeight + gridView.height + (index == repeater.count - 1 ? 0 : footerHeight)
+                    height: parseInt(repeater.model.modelForRow(index).count) <= 0 ? 0 : headerHeight + gridView.height + (index == repeater.count - 1 ? 0 : footerHeight)
+                    opacity: parseInt(repeater.model.modelForRow(index).count) <= 0 ? 0 : 1
 
                     property int headerHeight: (gridViewLabel.height
                         + gridViewLabelUnderline.height + Kirigami.Units.gridUnit)
