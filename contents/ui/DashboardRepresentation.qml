@@ -287,9 +287,13 @@ Kicker.DashboardWindow {
                 bottom: parent.bottom
                 bottomMargin: (Kirigami.Units.gridUnit * 2)
                 horizontalCenter: parent.horizontalCenter
+                left: parent.left
+                leftMargin: (Kirigami.Units.gridUnit * 2)
+                right: parent.right
+                rightMargin: (Kirigami.Units.gridUnit * 2)
             }
 
-            width: (root.columns * root.cellSize) + (2 * spacing)
+            width: (root.columns * root.cellSize)
             height: parent.height
 
             spacing: Kirigami.Units.gridUnit * 2
@@ -299,7 +303,7 @@ Kicker.DashboardWindow {
 
                 anchors.top: parent.top
 
-                width: (columns * root.cellSize) + Kirigami.Units.gridUnit
+                width: parent.width - favoritesColumn.width
                 height: Math.floor(parent.height / root.cellSize) * root.cellSize + mainGridContainer.headerHeight
 
 
@@ -519,7 +523,7 @@ Kicker.DashboardWindow {
             Item {
                 id: favoritesColumn
 
-                width: (columns * root.cellSize) + Kirigami.Units.gridUnit
+                width: (columns * root.cellSize) + Kirigami.Units.gridUnit + (Kirigami.Units.gridUnit * 1)
                 height: parent.height
 
                 property int columns: 1
