@@ -25,15 +25,14 @@ PlasmaComponents.ScrollView {
 
     signal keyNavLeft(int subGridIndex)
     signal keyNavRight(int subGridIndex)
-    signal keyNavUp()
-    signal keyNavDown()
+    signal keyNavUp
+    signal keyNavDown
 
     property bool grabFocus: false
 
     property alias model: repeater.model
     property alias count: repeater.count
     property alias flickableItem: flickable
-
 
     onFocusChanged: {
         if (!focus) {
@@ -91,8 +90,7 @@ PlasmaComponents.ScrollView {
                     height: parseInt(repeater.model.modelForRow(index).count) <= 0 ? 0 : headerHeight + gridView.height + (index == repeater.count - 1 ? 0 : footerHeight)
                     opacity: parseInt(repeater.model.modelForRow(index).count) <= 0 ? 0 : 1
 
-                    property int headerHeight: (gridViewLabel.height
-                        + gridViewLabelUnderline.height + Kirigami.Units.gridUnit)
+                    property int headerHeight: (gridViewLabel.height + gridViewLabelUnderline.height + Kirigami.Units.gridUnit)
                     property int footerHeight: (Math.ceil(headerHeight / cellSize) * cellSize) - headerHeight
 
                     property Item itemGrid: gridView
@@ -162,7 +160,7 @@ PlasmaComponents.ScrollView {
                         }
 
                         onCountChanged: {
-                            if (flickable.grabFocus && index == 0 && count > 0) {
+                            if (itemMultiGrid.grabFocus && index == 0 && count > 0) {
                                 currentIndex = 0;
                                 focus = true;
                             }
