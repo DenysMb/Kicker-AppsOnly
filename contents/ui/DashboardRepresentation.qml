@@ -199,6 +199,7 @@ Kicker.DashboardWindow {
 
             onTextChanged: {
                 runnerModel.query = searchField.text;
+                runnerGrid.resetNavigation();
             }
 
             function clear() {
@@ -210,12 +211,12 @@ Kicker.DashboardWindow {
 
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                    if (root.searching && runnerModel.count > 0 && runnerModel.modelForRow(0).count > 0) {
+                    if (root.searching && runnerModel.count > 0) {
                         event.accepted = true;
-                        var targetGrid = runnerGrid.itemGrid;
-                        if (targetGrid && targetGrid.currentIndex >= 0) {
-                            targetGrid.model.trigger(targetGrid.currentIndex, "", null);
-                        } else {
+                        var currentGrid = runnerGrid.getCurrentGrid();
+                        if (currentGrid && currentGrid.currentIndex >= 0) {
+                            currentGrid.model.trigger(currentGrid.currentIndex, "", null);
+                        } else if (runnerModel.modelForRow(0).count > 0) {
                             runnerModel.modelForRow(0).trigger(0, "", null);
                         }
                         root.toggle();
@@ -223,22 +224,36 @@ Kicker.DashboardWindow {
                 } else if (event.key === Qt.Key_Left) {
                     if (root.searching && runnerModel.count > 0) {
                         event.accepted = true;
-                        var targetGrid = runnerGrid.itemGrid;
-                        if (targetGrid) {
-                            if (targetGrid.currentIndex > 0) {
-                                targetGrid.currentIndex--;
+                        var currentGrid = runnerGrid.getCurrentGrid();
+                        if (currentGrid) {
+                            if (currentGrid.currentIndex > 0) {
+                                currentGrid.currentIndex--;
+                            } else {
+                                runnerGrid.moveToPreviousGrid();
                             }
                         }
                     }
                 } else if (event.key === Qt.Key_Right) {
                     if (root.searching && runnerModel.count > 0) {
                         event.accepted = true;
-                        var targetGrid = runnerGrid.itemGrid;
-                        if (targetGrid) {
-                            if (targetGrid.currentIndex < targetGrid.count - 1) {
-                                targetGrid.currentIndex++;
+                        var currentGrid = runnerGrid.getCurrentGrid();
+                        if (currentGrid) {
+                            if (currentGrid.currentIndex < currentGrid.count - 1) {
+                                currentGrid.currentIndex++;
+                            } else {
+                                runnerGrid.moveToNextGrid();
                             }
                         }
+                    }
+                } else if (event.key === Qt.Key_Down) {
+                    if (root.searching && runnerModel.count > 0) {
+                        event.accepted = true;
+                        runnerGrid.moveToNextGrid();
+                    }
+                } else if (event.key === Qt.Key_Up) {
+                    if (root.searching && runnerModel.count > 0) {
+                        event.accepted = true;
+                        runnerGrid.moveToPreviousGrid();
                     }
                 }
             }

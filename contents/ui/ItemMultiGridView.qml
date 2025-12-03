@@ -34,9 +34,63 @@ PlasmaComponents.ScrollView {
     property alias count: repeater.count
     property alias flickableItem: flickable
     property Item itemGrid: repeater.count > 0 ? repeater.itemAt(0).itemGrid : null
+    property int currentGridIndex: 0
 
     function subGridAt(index) {
         return repeater.itemAt(index).itemGrid;
+    }
+
+    function getCurrentGrid() {
+        if (repeater.count > 0 && currentGridIndex >= 0 && currentGridIndex < repeater.count) {
+            return subGridAt(currentGridIndex);
+        }
+        return null;
+    }
+
+    function getGridCount() {
+        return repeater.count;
+    }
+
+    function moveToNextGrid() {
+        for (var i = currentGridIndex + 1; i < repeater.count; i++) {
+            var grid = subGridAt(i);
+            if (grid && grid.count > 0) {
+                var oldGrid = getCurrentGrid();
+                if (oldGrid) {
+                    oldGrid.currentIndex = -1;
+                }
+                currentGridIndex = i;
+                grid.currentIndex = 0;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function moveToPreviousGrid() {
+        for (var i = currentGridIndex - 1; i >= 0; i--) {
+            var grid = subGridAt(i);
+            if (grid && grid.count > 0) {
+                var oldGrid = getCurrentGrid();
+                if (oldGrid) {
+                    oldGrid.currentIndex = -1;
+                }
+                currentGridIndex = i;
+                grid.currentIndex = grid.count - 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function resetNavigation() {
+        currentGridIndex = 0;
+        for (var i = 0; i < repeater.count; i++) {
+            var grid = subGridAt(i);
+            if (grid) {
+                grid.currentIndex = (i === 0 && grid.count > 0) ? 0 : -1;
+            }
+        }
     }
 
     onFocusChanged: {
