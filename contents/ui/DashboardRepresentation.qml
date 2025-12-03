@@ -35,11 +35,8 @@ Kicker.DashboardWindow {
     property bool smallScreen: ((Math.floor(width / Kirigami.Units.iconSizes.huge) <= 22) || (Math.floor(height / Kirigami.Units.iconSizes.huge) <= 14))
 
     property int iconSize: smallScreen ? Kirigami.Units.iconSizes.large : Kirigami.Units.iconSizes.huge
-    property int cellSize: iconSize + (2 * Kirigami.Units.iconSizes.sizeForLabels)
-        + (2 * Kirigami.Units.smallSpacing)
-        + (2 * Math.max(highlightItemSvg.margins.top + highlightItemSvg.margins.bottom,
-                        highlightItemSvg.margins.left + highlightItemSvg.margins.right))
-    property int columns: Math.floor(((smallScreen ? 85 : 80)/100) * Math.ceil(width / cellSize))
+    property int cellSize: iconSize + (2 * Kirigami.Units.iconSizes.sizeForLabels) + (2 * Kirigami.Units.smallSpacing) + (2 * Math.max(highlightItemSvg.margins.top + highlightItemSvg.margins.bottom, highlightItemSvg.margins.left + highlightItemSvg.margins.right))
+    property int columns: Math.floor(((smallScreen ? 85 : 80) / 100) * Math.ceil(width / cellSize))
     property bool searching: searchField.text !== ""
 
     keyEventProxy: searchField
@@ -115,7 +112,7 @@ Kicker.DashboardWindow {
             target: Plasmoid
             function onUserConfiguringChanged() {
                 if (Plasmoid.userConfiguring) {
-                    root.hide()
+                    root.hide();
                 }
             }
         }
@@ -210,6 +207,16 @@ Kicker.DashboardWindow {
 
             onSelectionStartChanged: Qt.callLater(searchHeading.updateSelection)
             onSelectionEndChanged: Qt.callLater(searchHeading.updateSelection)
+
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                    if (root.searching && runnerModel.count > 0 && runnerModel.modelForRow(0).count > 0) {
+                        event.accepted = true;
+                        runnerModel.modelForRow(0).trigger(0, "", null);
+                        root.toggle();
+                    }
+                }
+            }
         }
 
         TextEdit {
@@ -219,7 +226,7 @@ Kicker.DashboardWindow {
                 horizontalCenter: parent.horizontalCenter
             }
 
-            y: (middleRow.anchors.topMargin / 2) - (root.smallScreen ? (height/10) : 0)
+            y: (middleRow.anchors.topMargin / 2) - (root.smallScreen ? (height / 10) : 0)
 
             font.pointSize: dummyHeading.font.pointSize * 1.5
             wrapMode: Text.NoWrap
@@ -259,7 +266,7 @@ Kicker.DashboardWindow {
             icon.name: "edit-clear"
             flat: false
 
-            onClicked: searchField.clear();
+            onClicked: searchField.clear()
 
             Keys.onPressed: event => {
                 if (event.key === Qt.Key_Tab) {
@@ -306,9 +313,8 @@ Kicker.DashboardWindow {
                 width: parent.width - favoritesColumn.width
                 height: Math.floor(parent.height / root.cellSize) * root.cellSize + mainGridContainer.headerHeight
 
-
                 Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
-                    Kirigami.Theme.inherit: false
+                Kirigami.Theme.inherit: false
 
                 property int columns: root.columns
                 property Item visibleGrid: mainGrid
