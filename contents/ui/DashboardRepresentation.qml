@@ -248,12 +248,12 @@ Kicker.DashboardWindow {
                 } else if (event.key === Qt.Key_Down) {
                     if (root.searching && runnerModel.count > 0) {
                         event.accepted = true;
-                        runnerGrid.moveToNextGrid();
+                        runnerGrid.moveDown();
                     }
                 } else if (event.key === Qt.Key_Up) {
                     if (root.searching && runnerModel.count > 0) {
                         event.accepted = true;
-                        runnerGrid.moveToPreviousGrid();
+                        runnerGrid.moveUp();
                     }
                 }
             }

@@ -67,7 +67,7 @@ PlasmaComponents.ScrollView {
         return false;
     }
 
-    function moveToPreviousGrid() {
+    function moveToPreviousGrid(preferredCol) {
         for (var i = currentGridIndex - 1; i >= 0; i--) {
             var grid = subGridAt(i);
             if (grid && grid.count > 0) {
@@ -76,11 +76,50 @@ PlasmaComponents.ScrollView {
                     oldGrid.currentIndex = -1;
                 }
                 currentGridIndex = i;
-                grid.currentIndex = grid.count - 1;
+                if (preferredCol !== undefined && preferredCol >= 0) {
+                    grid.tryActivate(grid.lastRow(), preferredCol);
+                } else {
+                    grid.currentIndex = grid.count - 1;
+                }
                 return true;
             }
         }
         return false;
+    }
+
+    function moveUp() {
+        var currentGrid = getCurrentGrid();
+        if (!currentGrid || currentGrid.currentIndex < 0) {
+            return false;
+        }
+
+        var currentRow = currentGrid.currentRow();
+        var currentCol = currentGrid.currentCol();
+
+        if (currentRow > 0) {
+            currentGrid.tryActivate(currentRow - 1, currentCol);
+            return true;
+        } else {
+            return moveToPreviousGrid(currentCol);
+        }
+    }
+
+    function moveDown() {
+        var currentGrid = getCurrentGrid();
+        if (!currentGrid || currentGrid.currentIndex < 0) {
+            return false;
+        }
+
+        var currentRow = currentGrid.currentRow();
+        var currentCol = currentGrid.currentCol();
+        var lastRow = currentGrid.lastRow();
+
+        if (currentRow < lastRow) {
+            currentGrid.tryActivate(currentRow + 1, currentCol);
+            return true;
+        } else {
+            return moveToNextGrid();
+        }
     }
 
     function resetNavigation() {
