@@ -1,0 +1,24 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "denysmb@zoho.com",
+                "Name": "Denys Madureira"
+            }
+        ],
+        "BugReportUrl": "https://github.com/DenysMb/Kicker-AppsOnly/issues",
+        "Category": "Application Launchers",
+        "Description": "A launcher based on Kicker Dash menu",
+        "EnabledByDefault": true,
+        "Icon": "start-here-kde",
+        "Id": "com.github.DenysMb.Kicker-AppsOnly",
+        "License": "GPL-2.0+",
+        "Name": "Kicker Apps Only Menu",
+        "Website": "https://github.com/DenysMb/Kicker-AppsOnly"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.launchermenu"
+    ]
+}
