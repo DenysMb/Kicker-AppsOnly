@@ -212,8 +212,33 @@ Kicker.DashboardWindow {
                 if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
                     if (root.searching && runnerModel.count > 0 && runnerModel.modelForRow(0).count > 0) {
                         event.accepted = true;
-                        runnerModel.modelForRow(0).trigger(0, "", null);
+                        var targetGrid = runnerGrid.itemGrid;
+                        if (targetGrid && targetGrid.currentIndex >= 0) {
+                            targetGrid.model.trigger(targetGrid.currentIndex, "", null);
+                        } else {
+                            runnerModel.modelForRow(0).trigger(0, "", null);
+                        }
                         root.toggle();
+                    }
+                } else if (event.key === Qt.Key_Left) {
+                    if (root.searching && runnerModel.count > 0) {
+                        event.accepted = true;
+                        var targetGrid = runnerGrid.itemGrid;
+                        if (targetGrid) {
+                            if (targetGrid.currentIndex > 0) {
+                                targetGrid.currentIndex--;
+                            }
+                        }
+                    }
+                } else if (event.key === Qt.Key_Right) {
+                    if (root.searching && runnerModel.count > 0) {
+                        event.accepted = true;
+                        var targetGrid = runnerGrid.itemGrid;
+                        if (targetGrid) {
+                            if (targetGrid.currentIndex < targetGrid.count - 1) {
+                                targetGrid.currentIndex++;
+                            }
+                        }
                     }
                 }
             }

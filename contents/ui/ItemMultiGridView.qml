@@ -33,6 +33,11 @@ PlasmaComponents.ScrollView {
     property alias model: repeater.model
     property alias count: repeater.count
     property alias flickableItem: flickable
+    property Item itemGrid: repeater.count > 0 ? repeater.itemAt(0).itemGrid : null
+
+    function subGridAt(index) {
+        return repeater.itemAt(index).itemGrid;
+    }
 
     onFocusChanged: {
         if (!focus) {
