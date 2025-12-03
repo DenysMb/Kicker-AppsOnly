@@ -5,14 +5,13 @@
 */
 
 import QtQuick 2.15
-
 import org.kde.ksvg 1.0 as KSvg
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kirigami 2.20 as Kirigami
 import org.kde.plasma.private.kicker 0.1 as Kicker
 
-PlasmaComponents.ScrollView {
+Item {
     id: itemMultiGrid
 
     anchors {
@@ -143,14 +142,18 @@ PlasmaComponents.ScrollView {
     Flickable {
         id: flickable
 
+        anchors.fill: parent
+
         flickableDirection: Flickable.VerticalFlick
         contentHeight: itemColumn.implicitHeight
+        boundsBehavior: Flickable.StopAtBounds
+        clip: true
 
         function subGridAt(index) {
             return repeater.itemAt(index).itemGrid;
         }
 
-        function tryActivate(row, col) { // FIXME TODO: Cleanup messy algo.
+        function tryActivate(row, col) {
             if (contentY > 0) {
                 row = 0;
             }
@@ -163,7 +166,7 @@ PlasmaComponents.ScrollView {
 
                 if (rows <= row) {
                     target = grid;
-                    rows += grid.lastRow() + 2; // Header counts as one.
+                    rows += grid.lastRow() + 2;
                 } else {
                     break;
                 }
@@ -206,7 +209,7 @@ PlasmaComponents.ScrollView {
                         wrapMode: Text.NoWrap
                         opacity: 1.0
 
-                        color: "white" // FIXME TODO: Respect theming?
+                        color: "white"
 
                         level: 1
 
@@ -315,17 +318,24 @@ PlasmaComponents.ScrollView {
                             }
                         }
                     }
-
-                    // HACK: Steal wheel events from the nested grid view and forward them to
-                    // the ScrollView's internal WheelArea.
-                    Kicker.WheelInterceptor {
-                        anchors.fill: gridView
-                        z: 1
-
-                        destination: findWheelArea(flickable)
-                    }
                 }
             }
+        }
+    }
+
+    MouseArea {
+        id: wheelArea
+        anchors.fill: parent
+        acceptedButtons: Qt.NoButton
+        hoverEnabled: false
+
+        onWheel: function (wheel) {
+            var scrollAmount = wheel.angleDelta.y / 3;
+            var newY = flickable.contentY - scrollAmount;
+            var maxY = Math.max(0, flickable.contentHeight - flickable.height);
+            newY = Math.max(0, Math.min(newY, maxY));
+            flickable.contentY = newY;
+            wheel.accepted = true;
         }
     }
 }
