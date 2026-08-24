@@ -11,7 +11,7 @@ import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kirigami 2.20 as Kirigami
 import org.kde.plasma.private.kicker 0.1 as Kicker
 
-Item {
+FocusScope {
     id: itemMultiGrid
 
     anchors {
@@ -37,6 +37,10 @@ Item {
 
     function subGridAt(index) {
         return repeater.itemAt(index).itemGrid;
+    }
+
+    function tryActivate(row, col) {
+        flickable.tryActivate(row, col);
     }
 
     function getCurrentGrid() {
@@ -256,7 +260,7 @@ Item {
 
                         onFocusChanged: {
                             if (focus) {
-                                flickable.focus = true;
+                                itemMultiGrid.focus = true;
                             }
                         }
 
@@ -294,11 +298,11 @@ Item {
                         }
 
                         onKeyNavLeft: {
-                            flickable.keyNavLeft(index);
+                            itemMultiGrid.keyNavLeft(index);
                         }
 
                         onKeyNavRight: {
-                            flickable.keyNavRight(index);
+                            itemMultiGrid.keyNavRight(index);
                         }
 
                         onKeyNavUp: {
@@ -306,7 +310,7 @@ Item {
                                 var prevGrid = subGridAt(index - 1);
                                 prevGrid.tryActivate(prevGrid.lastRow(), currentCol());
                             } else {
-                                flickable.keyNavUp();
+                                itemMultiGrid.keyNavUp();
                             }
                         }
 
@@ -314,7 +318,7 @@ Item {
                             if (index < repeater.count - 1) {
                                 subGridAt(index + 1).tryActivate(0, currentCol());
                             } else {
-                                flickable.keyNavDown();
+                                itemMultiGrid.keyNavDown();
                             }
                         }
                     }

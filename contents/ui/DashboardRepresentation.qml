@@ -73,8 +73,17 @@ Kicker.DashboardWindow {
         funnelModel.sourceModel = rootModel.modelForRow(0);
         mainGrid.model = funnelModel;
         mainGrid.currentIndex = -1;
-        filterListScrollArea.focus = true;
         filterList.model = rootModel;
+
+        if (root.visible) {
+            if (filterList.allApps) {
+                allAppsGrid.tryActivate(0, 0);
+            } else {
+                mainGrid.tryActivate(0, 0);
+            }
+        } else {
+            filterListScrollArea.focus = true;
+        }
     }
 
     mainItem: MouseArea {
